@@ -1,4 +1,6 @@
 'use client'
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 interface Category {
@@ -81,6 +83,8 @@ export const NewAudioForm = () => {
         }),
       });
 
+
+
       if (!response.ok) {
         throw new Error('Error al guardar los detalles del clip de audio');
       }
@@ -143,12 +147,15 @@ export const NewAudioForm = () => {
         onChange={handleFileChange}
         className="w-full p-2 mb-4 border rounded"
       />
-      <button
+      <Link href="/">      <button
         onClick={handleAddClip}
+        
         className="px-4 py-2 bg-green-500 text-white rounded-full"
       >
         Add Clip
       </button>
+      </Link>
+
     </div>
   );
 };

@@ -10,14 +10,19 @@ export const Header = () => {
         </Link>
 
         <div className="mr-4 flex items-end">
-          <span className="font-semibold mr-2">Customer Info:</span>
+          <span className="font-semibold mr-2 pr-2">Customer Info:</span>
           John Doe
-          <div className="relative">
-            25
+          <div className="relative pr-3 ml-2">
+          25
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-2 h-2 bg-blue-500 rounded-full"></div>
           </div>
-          1234567890
+          234567890
         </div>
+        <Link href="/reports">
+          <button className="px-4 py-2 bg-green-500 text-white rounded-full mr-4">
+            Ver Reportes
+          </button>
+        </Link>
       </div>
       
       <div className="flex items-center">

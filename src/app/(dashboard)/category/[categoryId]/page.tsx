@@ -1,7 +1,7 @@
-'use client'
+'use client';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
+import { useSearch } from '@/context/SearchContext';
 
 interface AudioClip {
   id: string;
@@ -18,26 +18,23 @@ interface Category {
 }
 
 export default function CategoryPage() {
-  const { categoryId } = useParams(); // Usar useParams para obtener categoryId
+  const { categoryId } = useParams();
+  const { searchTerm } = useSearch();
   const router = useRouter();
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingClip, setEditingClip] = useState<AudioClip | null>(null);
-  const [editedName, setEditedName] = useState<string>('');
-  const [editedTags, setEditedTags] = useState<string>('');
+  const [menuOpen, setMenuOpen] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (!categoryId) return;
 
-    // Fetch category data from the server
     const fetchCategory = async () => {
       try {
         const response = await fetch(`/api/categories/${categoryId}`);
         if (!response.ok) {
           throw new Error('Error al obtener la categoría');
         }
-
         const data = await response.json();
         setCategory(data);
       } catch (error) {
@@ -52,7 +49,7 @@ export default function CategoryPage() {
   }, [categoryId]);
 
   const handleDeleteCategory = async () => {
-    const confirmed = confirm("¿Estás seguro de que deseas eliminar esta categoría junto con todos sus clips de audio?");
+    const confirmed = confirm('¿Estás seguro de que deseas eliminar esta categoría junto con todos sus clips de audio?');
     if (!confirmed) return;
 
     try {
@@ -73,7 +70,7 @@ export default function CategoryPage() {
   };
 
   const handleDeleteClip = async (clipId: string) => {
-    const confirmed = confirm("¿Estás seguro de que deseas eliminar este clip de audio?");
+    const confirmed = confirm('¿Estás seguro de que deseas eliminar este clip de audio?');
     if (!confirmed) return;
 
     try {
@@ -85,7 +82,6 @@ export default function CategoryPage() {
         throw new Error('Error al eliminar el clip de audio');
       }
 
-      // Actualizar la lista de clips después de eliminar uno
       setCategory((prevCategory) => {
         if (!prevCategory) return null;
         return {
@@ -101,50 +97,11 @@ export default function CategoryPage() {
     }
   };
 
-  const handleEditClip = async () => {
-    if (!editingClip) return;
-
-    try {
-      const response = await fetch(`/api/audioClips/${editingClip.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nombre: editedName,
-          tags: editedTags.split(',').map(tag => tag.trim()), // Convertir los tags en un array
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al actualizar el clip de audio');
-      }
-
-      // Actualizar la lista de clips después de la edición
-      setCategory((prevCategory) => {
-        if (!prevCategory) return null;
-        return {
-          ...prevCategory,
-          audioClips: prevCategory.audioClips.map((clip) =>
-            clip.id === editingClip.id
-              ? { ...clip, nombre: editedName, tags: editedTags.split(',').map(tag => tag.trim()) }
-              : clip
-          ),
-        };
-      });
-
-      alert('Clip de audio actualizado con éxito');
-      setEditingClip(null);
-    } catch (error) {
-      console.error('Error al actualizar el clip de audio:', error);
-      alert('Error al actualizar el clip de audio. Por favor, intenta nuevamente.');
-    }
-  };
-
-  const startEditing = (clip: AudioClip) => {
-    setEditingClip(clip);
-    setEditedName(clip.nombre);
-    setEditedTags(clip.tags.join(', '));
+  const toggleMenu = (clipId: string) => {
+    setMenuOpen((prev) => ({
+      ...prev,
+      [clipId]: !prev[clipId],
+    }));
   };
 
   if (loading) {
@@ -159,21 +116,47 @@ export default function CategoryPage() {
     return <div>Categoría no encontrada</div>;
   }
 
+  const filteredAudioClips = category.audioClips.filter(
+    (clip) =>
+      clip.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clip.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">{category.nombre}</h1>
-      <button
-        onClick={handleDeleteCategory}
-        className="mb-4 px-4 py-2 bg-red-600 text-white rounded-lg"
-      >
+      <button onClick={handleDeleteCategory} className="mb-4 px-4 py-2 bg-red-600 text-white rounded-lg">
         Eliminar Categoría
       </button>
       <div>
         <h2 className="text-xl font-semibold mb-2">Clips de Audio:</h2>
-        {category.audioClips.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {category.audioClips.map((clip) => (
-              <div key={clip.id} className="bg-gray-200 p-4 rounded shadow">
+        {filteredAudioClips.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredAudioClips.map((clip) => (
+              <div key={clip.id} className="relative bg-gray-200 p-4 rounded shadow">
+                {/* Dropdown Menu Button */}
+                <div className="absolute top-2 right-2">
+                  <button onClick={() => toggleMenu(clip.id)} className="p-2 rounded-full hover:bg-gray-300">
+                    ⋮
+                  </button>
+                  {menuOpen[clip.id] && (
+                    <div className="absolute right-0 mt-2 w-24 bg-white border rounded shadow-lg z-10">
+                      <button
+                        onClick={() => alert(`Editing clip: ${clip.nombre}`)} // Placeholder for the edit action
+                        className="block px-4 py-2 w-full text-left hover:bg-blue-500 hover:text-white"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClip(clip.id)}
+                        className="block px-4 py-2 w-full text-left hover:bg-red-500 hover:text-white"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <h3 className="font-bold">{clip.nombre}</h3>
                 <p className="text-sm">Fecha de creación: {new Date(clip.fechaCreacion).toLocaleDateString()}</p>
                 <p className="text-sm">Tags: {clip.tags.join(', ')}</p>
@@ -181,18 +164,6 @@ export default function CategoryPage() {
                   <source src={clip.audioUrl} type="audio/mpeg" />
                   Tu navegador no soporta el elemento de audio.
                 </audio>
-                <button
-                  onClick={() => startEditing(clip)}
-                  className="mt-4 mr-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDeleteClip(clip.id)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Eliminar
-                </button>
               </div>
             ))}
           </div>
@@ -200,36 +171,6 @@ export default function CategoryPage() {
           <p>No hay clips de audio asignados a esta categoría.</p>
         )}
       </div>
-      {editingClip && (
-        <div className="mt-8 bg-gray-100 p-4 rounded shadow">
-          <h2 className="text-xl font-bold mb-4">Editar Clip de Audio</h2>
-          <input
-            type="text"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-            placeholder="Nombre del clip"
-            className="w-full p-2 mb-4 border rounded"
-          />
-          <textarea
-            value={editedTags}
-            onChange={(e) => setEditedTags(e.target.value)}
-            placeholder="Tags (separados por coma)"
-            className="w-full p-2 mb-4 border rounded h-24 resize-none"
-          />
-          <button
-            onClick={handleEditClip}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg"
-          >
-            Guardar Cambios
-          </button>
-          <button
-            onClick={() => setEditingClip(null)}
-            className="ml-2 px-4 py-2 bg-gray-500 text-white rounded-lg"
-          >
-            Cancelar
-          </button>
-        </div>
-      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import {
   ClerkProvider
 } from '@clerk/nextjs'
+import { SearchProvider } from "@/context/SearchContext";
 
 
 
@@ -24,7 +25,10 @@ export default function RootLayout({
       <body
         className={`${geistMont} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          {children}
+        <SearchProvider>
+        {children}
+        </SearchProvider>
+
       </body>
     </html>
     </ClerkProvider>
