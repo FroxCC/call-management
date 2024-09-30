@@ -1,55 +1,54 @@
-'use client'
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+'use client';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Definir la interfaz para una categoría
 interface Category {
   id: number;
   nombre: string;
 }
 
-// Definir la interfaz del contexto
 interface CategoriesContextProps {
   categories: Category[];
-  addCategory: (newCategory: Category) => void;
+  updateCategories: () => void;
 }
 
 const CategoriesContext = createContext<CategoriesContextProps | undefined>(undefined);
 
-export const CategoriesProvider = ({ children }: { children: ReactNode }) => {
+export const CategoriesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Fetch categories when the context is mounted
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories');
-        if (!response.ok) {
-          throw new Error('Error al obtener las categorías');
-        }
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error al obtener las categorías:', error);
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Error al obtener las categorías');
       }
-    };
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error al obtener las categorías:', error);
+    }
+  };
+
+  // Llamar a `fetchCategories` para actualizar las categorías
+  const updateCategories = () => {
+    fetchCategories();
+  };
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
-  const addCategory = (newCategory: Category) => {
-    setCategories((prevCategories) => [...prevCategories, newCategory]);
-  };
-
   return (
-    <CategoriesContext.Provider value={{ categories, addCategory }}>
+    <CategoriesContext.Provider value={{ categories, updateCategories }}>
       {children}
     </CategoriesContext.Provider>
   );
 };
 
-export const useCategories = (): CategoriesContextProps => {
+export const useCategories = () => {
   const context = useContext(CategoriesContext);
   if (!context) {
-    throw new Error('useCategories debe ser utilizado dentro de un CategoriesProvider');
+    throw new Error('useCategories debe ser usado dentro de CategoriesProvider');
   }
   return context;
 };

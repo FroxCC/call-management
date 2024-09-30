@@ -1,6 +1,7 @@
-'use client'
+'use client';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import { useCategories } from '@/context/CategoriesContext'; // Importar el contexto de categorías
 
 interface Category {
   id: number;
@@ -14,6 +15,7 @@ export const NewAudioForm = () => {
   const [tags, setTags] = useState<string>('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { updateCategories } = useCategories();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -81,11 +83,12 @@ export const NewAudioForm = () => {
         }),
       });
 
-
-
       if (!response.ok) {
         throw new Error('Error al guardar los detalles del clip de audio');
       }
+
+      // Llamar a `updateCategories` para actualizar el Sidenav
+      updateCategories();
 
       alert('Clip de audio agregado con éxito');
       // Limpiar los campos después de agregar el clip
@@ -102,16 +105,16 @@ export const NewAudioForm = () => {
 
   return (
     <div className="bg-gray-200 p-4 rounded shadow mb-4">
-      <h2 className="text-xl font-bold mb-4">Add New Audio Clip</h2>
+      <h2 className="text-xl font-bold mb-4">Agregar Nuevo Clip de Audio</h2>
       <input
         type="text"
-        placeholder="Enter clip name"
+        placeholder="Nombre del clip"
         value={clipName}
         onChange={(e) => setClipName(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
       />
       <div className="mb-4">
-        <p className="font-bold mb-2">Select Category:</p>
+        <p className="font-bold mb-2">Seleccionar Categoría:</p>
         <div className="flex flex-wrap">
           {categories.map((category) => (
             <button
@@ -128,13 +131,13 @@ export const NewAudioForm = () => {
       </div>
       <input
         type="text"
-        placeholder="Or enter a new category"
+        placeholder="O ingresa una nueva categoría"
         value={newCategoryName}
         onChange={(e) => setNewCategoryName(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
       />
       <textarea
-        placeholder="Enter tags (comma-separated)"
+        placeholder="Ingresa etiquetas (separadas por comas)"
         value={tags}
         onChange={(e) => setTags(e.target.value)}
         className="w-full p-2 mb-4 border rounded h-24 resize-none"
@@ -145,15 +148,14 @@ export const NewAudioForm = () => {
         onChange={handleFileChange}
         className="w-full p-2 mb-4 border rounded"
       />
-      <Link href="/">      <button
-        onClick={handleAddClip}
-        
-        className="px-4 py-2 bg-green-500 text-white rounded-full"
-      >
-        Add Clip
-      </button>
+      <Link href="/">
+        <button
+          onClick={handleAddClip}
+          className="px-4 py-2 bg-green-500 text-white rounded-full"
+        >
+          Agregar Clip
+        </button>
       </Link>
-
     </div>
   );
 };
