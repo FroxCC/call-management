@@ -1,25 +1,43 @@
 // src/components/Sidenav.tsx
-'use client';
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useSearch } from '@/context/SearchContext';
-import { useCategories } from '@/context/CategoriesContext';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSearch } from "@/context/SearchContext";
+import { useCategories } from "@/context/CategoriesContext";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface Category {
   id: number;
   nombre: string;
-  // Remover la propiedad tags si no existe
 }
 
 export const Sidenav: React.FC = () => {
   const { categories } = useCategories(); // Obtener las categorías del contexto
   const { searchTerm, setSearchTerm } = useSearch(); // Obtener `searchTerm` y `setSearchTerm` del contexto
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const router = useRouter();
 
   // Filtrar las categorías de acuerdo al término de búsqueda
   const filteredCategories = categories.filter((category) =>
     category.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCallbkClick = () => {
+    setShowDatePicker(true);
+  };
+
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+  };
+
+  const handleConfirmDate = () => {
+    if (selectedDate) {
+      alert(`Callback set for: ${selectedDate.toLocaleString()}`);
+    }
+    setShowDatePicker(false);
+  };
 
   const handleCategoryClick = (category: Category) => {
     router.push(`/category/${category.id}`);
@@ -67,10 +85,30 @@ export const Sidenav: React.FC = () => {
         <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
           NCO
         </button>
-        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+        <button
+          className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600"
+          onClick={handleCallbkClick}
+        >
           Callbk
         </button>
       </div>
+      {showDatePicker && (
+        <div className="mt-4">
+          <DatePicker
+            selected={selectedDate}
+            onChange={handleDateChange}
+            showTimeSelect
+            dateFormat="Pp"
+            className="w-full p-2 border rounded"
+          />
+          <button
+            onClick={handleConfirmDate}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+          >
+            Confirmar Fecha y Hora
+          </button>
+        </div>
+      )}
     </nav>
   );
 };
