@@ -10,7 +10,7 @@ export const Header = () => {
         </Link>
 
         <div className="mr-4 flex items-end">
-          <span className="font-semibold mr-2 pr-2">Customer Info:</span>
+          <span className="font-semibold mr-2 pr-2">Info del Cliente:</span>
           John Doe
           <div className="relative pr-3 ml-2">
           25
@@ -28,12 +28,12 @@ export const Header = () => {
       <div className="flex items-center">
         <Link href="/addaudio">
           <button className="px-4 py-2 bg-green-500 text-white rounded-full mr-4">
-            Add New Audio Clip
+            Agregar Nuevo Audio Clip
           </button>
         </Link>
         
         {/* Botón para cerrar sesión o acceder a la cuenta */}
-        <UserButton afterSignOutUrl="/sign-in" />
+        <UserButton/>
       </div>
     </header>
   );

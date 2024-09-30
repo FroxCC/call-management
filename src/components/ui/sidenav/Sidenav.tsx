@@ -1,57 +1,42 @@
 // src/components/Sidenav.tsx
-'use client'
-import React, { useEffect, useState } from 'react';
+'use client';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearch } from '@/context/SearchContext';
+import { useCategories } from '@/context/CategoriesContext';
 
 interface Category {
   id: number;
   nombre: string;
-  tags?: string[];
+  // Remover la propiedad tags si no existe
 }
 
-export const Sidenav = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+export const Sidenav: React.FC = () => {
+  const { categories } = useCategories(); // Obtener las categorías del contexto
   const { searchTerm, setSearchTerm } = useSearch(); // Obtener `searchTerm` y `setSearchTerm` del contexto
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories');
-        if (!response.ok) {
-          throw new Error('Error al obtener las categorías');
-        }
-
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error al obtener las categorías:', error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  // Filtrar las categorías de acuerdo al término de búsqueda
+  const filteredCategories = categories.filter((category) =>
+    category.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleCategoryClick = (category: Category) => {
     router.push(`/category/${category.id}`);
   };
 
-  const filteredCategories = categories.filter((category) =>
-    category.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (category.tags?.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase())) ?? false)
-  );
-
   return (
     <nav className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
+      {/* Input de búsqueda */}
       <input
         type="text"
-        placeholder="Buscar por categorías o tags..."
+        placeholder="Buscar por categorías..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)} // Actualizar `searchTerm` en el contexto
         className="w-full p-2 mb-4 border rounded"
       />
 
+      {/* Mostrar categorías filtradas */}
       {filteredCategories.map((category) => (
         <button
           key={category.id}
@@ -61,6 +46,31 @@ export const Sidenav = () => {
           <span className="ml-2">{category.nombre}</span>
         </button>
       ))}
+
+      {/* Botones adicionales */}
+      <div className="mt-4 flex justify-between flex-wrap">
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          WRG #
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          N./A
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          V.M.
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          UnSb
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          NCC
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          NCO
+        </button>
+        <button className="px-4 py-2 mb-4 bg-green-700 text-white rounded-lg hover:bg-green-600">
+          Callbk
+        </button>
+      </div>
     </nav>
   );
 };

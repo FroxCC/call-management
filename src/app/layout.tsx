@@ -5,6 +5,7 @@ import {
   ClerkProvider
 } from '@clerk/nextjs'
 import { SearchProvider } from "@/context/SearchContext";
+import { CategoriesProvider } from "@/context/CategoriesContext";
 
 
 
@@ -19,14 +20,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/sign-in" >
       
     <html lang="en">
       <body
         className={`${geistMont} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SearchProvider>
+        <CategoriesProvider>
         {children}
+        </CategoriesProvider>
         </SearchProvider>
 
       </body>
