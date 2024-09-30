@@ -16,7 +16,6 @@ export const NewAudioForm = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    // Obtener categorías existentes desde el servidor
     const fetchCategories = async () => {
       try {
         const response = await fetch('/api/categories');

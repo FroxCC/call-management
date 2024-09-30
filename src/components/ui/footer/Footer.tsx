@@ -43,7 +43,7 @@ export const Footer = () => {
     setIsPlaying(false);
 
     if (!audioRef.current) {
-      audioRef.current = new Audio('/despedida.mp3'); // Ruta del audio en la carpeta public
+      audioRef.current = new Audio('/despedida.mp3');
     }
 
     audioRef.current.play();
