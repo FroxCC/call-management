@@ -6,6 +6,7 @@ export const Footer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  console.log(isPlaying);
 
   useEffect(() => {
     // Clear timer on unmount
