@@ -14,8 +14,6 @@ export const Header = () => {
     try {
       const response = await fetch('/api/despedida');
       const data = await response.json();
-      
-      console.log('Respuesta de /api/despedida:', data); 
   
       if (!response.ok || !data.audioUrl) {
         throw new Error('Error al obtener el audio de despedida');

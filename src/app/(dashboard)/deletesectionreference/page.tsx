@@ -1,8 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
+interface Section {
+    id: number;
+    nombre: string;
+  }
+
 export default function DeleteSectionPage() {
-  const [sections, setSections] = useState<any[]>([]); // Inicializa las secciones
+  const [sections, setSections] = useState<Section[]>([]); // Inicializa las secciones
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,8 +24,8 @@ export default function DeleteSectionPage() {
 
         setSections(data);
         setLoading(false);
-      } catch (error: any) {
-        setError(error.message || 'Hubo un error');
+      } catch (error) {
+        setError((error as Error).message);
         setLoading(false);
       }
     };
@@ -44,7 +49,7 @@ export default function DeleteSectionPage() {
       // Actualiza la lista de secciones después de la eliminación
       setSections((prevSections) => prevSections.filter((section) => section.id !== sectionId));
       alert('Sección eliminada exitosamente');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al eliminar la sección:', error);
       alert('Hubo un error al eliminar la sección.');
     }

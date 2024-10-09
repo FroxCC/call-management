@@ -5,6 +5,8 @@ import { getAuth } from '@clerk/nextjs/server'; // Para obtener la autenticació
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);

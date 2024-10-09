@@ -12,6 +12,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { UniqueIdentifier } from '@dnd-kit/core';
 import { ReferenceModal} from '@/components';
 import { Separator } from "@/components/ui/separator";
 
@@ -32,6 +33,16 @@ interface Category {
     nombre: string;
     audios: AudioClip[];
   }[];
+}
+
+interface SortableClipProps {
+  clip: AudioClip;
+  toggleMenu: (clipId: string) => void;
+  menuOpen: { [key: string]: boolean };
+  handleDeleteClip: (clipId: string) => void;
+  handleEditClip: (clipId: string, nombre: string, tags: string[]) => void;
+  handleRemoveReference: (clipId: string) => void;
+  isReferenceClip: boolean;
 }
 
 export default function CategoryPage() {
@@ -240,7 +251,7 @@ export default function CategoryPage() {
     }));
   };
 
-  const handleDragEnd = ({ active, over }: any) => {
+  const handleDragEnd = ({ active, over }: { active: { id: UniqueIdentifier }; over: { id: UniqueIdentifier } | null }) => {
     if (!over) return;
 
     const oldIndex =
@@ -341,6 +352,7 @@ export default function CategoryPage() {
                   handleDeleteClip={handleDeleteClip}
                   handleEditClip={handleEditClip}
                   isReferenceClip={false} 
+                  handleRemoveReference={handleRemoveReference}
                 />
               ))}
             </div>
@@ -417,7 +429,10 @@ export default function CategoryPage() {
   );
 }
 
-function SortableClip({ clip, toggleMenu, menuOpen, handleDeleteClip, handleEditClip, handleRemoveReference,isReferenceClip }: any) {
+
+
+
+function SortableClip({ clip, toggleMenu, menuOpen, handleDeleteClip, handleEditClip, handleRemoveReference,isReferenceClip }: SortableClipProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: clip.id });
   const [isEditing, setIsEditing] = useState(false);
   const [editNombre, setEditNombre] = useState(clip.nombre);

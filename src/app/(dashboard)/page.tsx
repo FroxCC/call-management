@@ -52,7 +52,7 @@ export default function Home() {
     return (
       <div className="p-4">
         <h1 className="text-7xl font-bold mb-4">Bienvenido</h1>
-        <p className='text-3xl'>Parece que no tienes una categoría "Intro". Por favor, agrega una para empezar a usar el sistema.</p>
+        <p className='text-3xl'>Parece que no tienes una categoría Intro. Por favor, agrega una para empezar a usar el sistema.</p>
       </div>
     );
   }

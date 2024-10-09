@@ -6,13 +6,33 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+
+interface AudioClip {
+    id: string;
+    nombre: string;
+    fechaCreacion: string;
+    tags: string[];
+    audioUrl: string;
+  }
+  
+  interface Category {
+    id: number;
+    nombre: string;
+    audioClips: AudioClip[];
+    seccionesReferencia: {
+      id: number;
+      nombre: string;
+      audios: AudioClip[];
+    }[];
+  }
+
 export default function AddSectionReferencePage() {
     const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
   const [audioClipIds, setAudioClipIds] = useState<string[]>([]);
-  const [categorias, setCategorias] = useState<any[]>([]);
-  const [audioClips, setAudioClips] = useState<any[]>([]); // Inicializado como arreglo vacío
+  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [audioClips, setAudioClips] = useState<AudioClip[]>([]); // Inicializado como arreglo vacío
   const { isLoaded, userId } = useAuth();
 
 
@@ -33,7 +53,6 @@ export default function AddSectionReferencePage() {
         if (!Array.isArray(data)) {
           throw new Error("La respuesta de audioClips no es un arreglo");
         }
-        console.log('Categorías obtenidas:', data);
         setAudioClips(data);
       } catch (error) {
         console.error("Error al obtener los clips de audio:", error);
