@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { useCategories } from '@/context/CategoriesContext'; // Importar el contexto de categorías
+import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface Category {
   id: number;
@@ -16,6 +18,8 @@ export const NewAudioForm = () => {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const { updateCategories } = useCategories();
+  const { userId } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -48,7 +52,6 @@ export const NewAudioForm = () => {
     }
 
     try {
-      // Subir el archivo a Cloudinary
       const formData = new FormData();
       formData.append('file', audioFile);
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
@@ -68,7 +71,34 @@ export const NewAudioForm = () => {
       const cloudinaryData = await cloudinaryResponse.json();
       const audioUrl = cloudinaryData.secure_url;
 
-      // Guardar los detalles del clip de audio en el backend
+      let categoryId = selectedCategoryId;
+
+      if (!categoryId && newCategoryName) {
+        if (!userId) {
+          throw new Error('Usuario no autenticado');
+        }
+
+        const categoryResponse = await fetch('/api/categories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nombre: newCategoryName,
+            usuarioId: userId,
+          }),
+        });
+
+        if (!categoryResponse.ok) {
+          throw new Error('Error al crear la nueva categoría');
+        }
+
+        const newCategory = await categoryResponse.json();
+        categoryId = newCategory.id;
+
+        updateCategories();
+      }
+
       const response = await fetch('/api/audioClips', {
         method: 'POST',
         headers: {
@@ -76,10 +106,10 @@ export const NewAudioForm = () => {
         },
         body: JSON.stringify({
           nombre: clipName,
-          categoriaId: selectedCategoryId,
-          nuevaCategoria: newCategoryName,
-          tags: tags.split(',').map(tag => tag.trim()), // Convertir los tags en un array
+          categoriaId: categoryId,
+          tags: tags.split(',').map(tag => tag.trim()),
           url: audioUrl,
+          usuarioId: userId,
         }),
       });
 
@@ -87,16 +117,16 @@ export const NewAudioForm = () => {
         throw new Error('Error al guardar los detalles del clip de audio');
       }
 
-      // Llamar a `updateCategories` para actualizar el Sidenav
       updateCategories();
+      router.push(`/category/${categoryId}`);
 
-      alert('Clip de audio agregado con éxito');
-      // Limpiar los campos después de agregar el clip
       setClipName('');
       setSelectedCategoryId(null);
       setNewCategoryName('');
       setTags('');
       setAudioFile(null);
+      
+      
     } catch (error) {
       console.error('Error al agregar el clip de audio:', error);
       alert('Error al agregar el clip de audio. Por favor, intenta nuevamente.');
@@ -106,13 +136,6 @@ export const NewAudioForm = () => {
   return (
     <div className="bg-gray-200 p-4 rounded shadow mb-4">
       <h2 className="text-xl font-bold mb-4">Agregar Nuevo Clip de Audio</h2>
-      <input
-        type="text"
-        placeholder="Nombre del clip"
-        value={clipName}
-        onChange={(e) => setClipName(e.target.value)}
-        className="w-full p-2 mb-4 border rounded"
-      />
       <div className="mb-4">
         <p className="font-bold mb-2">Seleccionar Categoría:</p>
         <div className="flex flex-wrap">
@@ -129,6 +152,7 @@ export const NewAudioForm = () => {
           ))}
         </div>
       </div>
+      <p className="font-bold mb-2">O Ingresa nueva categoría:</p>
       <input
         type="text"
         placeholder="O ingresa una nueva categoría"
@@ -136,6 +160,15 @@ export const NewAudioForm = () => {
         onChange={(e) => setNewCategoryName(e.target.value)}
         className="w-full p-2 mb-4 border rounded"
       />
+      <p className="font-bold mb-2">Nombre del clip:</p>
+      <input
+        type="text"
+        placeholder="Nombre del clip"
+        value={clipName}
+        onChange={(e) => setClipName(e.target.value)}
+        className="w-full p-2 mb-4 border rounded"
+      />
+<p className="font-bold mb-2">Tags:</p>
       <textarea
         placeholder="Ingresa etiquetas (separadas por comas)"
         value={tags}

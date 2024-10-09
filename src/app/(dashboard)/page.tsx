@@ -1,6 +1,6 @@
-// src/app/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@clerk/nextjs'; 
 import { useSearch } from '@/context/SearchContext';
 
 interface AudioClip {
@@ -15,25 +15,47 @@ export default function Home() {
   const { searchTerm } = useSearch();
   const [audioClips, setAudioClips] = useState<AudioClip[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [hasIntroCategory, setHasIntroCategory] = useState<boolean>(true); 
+  const { isLoaded, userId } = useAuth();
 
   useEffect(() => {
-    const fetchAudioClips = async () => {
+    if (!isLoaded || !userId) return;
+
+    const fetchIntroClips = async () => {
       try {
-        const response = await fetch('/api/audioClips');
+        const response = await fetch(`/api/audioClips/introClips?userId=${userId}`);
+        if (response.status === 404) {
+          setHasIntroCategory(false);
+          return;
+        }
+
         if (!response.ok) {
-          throw new Error('Error al obtener los clips de audio');
+          throw new Error('Error al obtener los clips de audio de la categoría "Intro"');
         }
 
         const data = await response.json();
         setAudioClips(data);
       } catch (error) {
-        console.error('Error al obtener los clips de audio:', error);
-        setError('No se pudieron cargar los clips de audio. Inténtalo de nuevo más tarde.');
+        console.error('Error al obtener los clips de audio de la categoría "Intro":', error);
+        setError('No se pudieron cargar los clips de la categoría "Intro". Inténtalo de nuevo más tarde.');
       }
     };
 
-    fetchAudioClips();
-  }, []);
+    fetchIntroClips();
+  }, [isLoaded, userId]);
+
+  if (error) {
+    return <div className="text-red-500 p-4">{error}</div>;
+  }
+
+  if (!hasIntroCategory) {
+    return (
+      <div className="p-4">
+        <h1 className="text-7xl font-bold mb-4">Bienvenido</h1>
+        <p className='text-3xl'>Parece que no tienes una categoría Intro. Por favor, agrega una para empezar a usar el sistema.</p>
+      </div>
+    );
+  }
 
   const filteredClips = audioClips.filter(
     (clip) =>
@@ -41,13 +63,9 @@ export default function Home() {
       clip.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
-  }
-
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Clips de Audio</h1>
+      <h1 className="text-2xl font-bold mb-4">Clips de Audio - Intro</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredClips.map((clip) => (
           <div key={clip.id} className="bg-gray-200 p-4 rounded shadow">

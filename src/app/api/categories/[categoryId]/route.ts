@@ -23,7 +23,17 @@ export async function GET(
         id: categoryIdNumber,
       },
       include: {
-        audioClips: true,
+        referenceClips: true, 
+        seccionesReferencia: {
+          include: {
+            audios: true,  // Incluye los audios dentro de cada sección de referencia
+          },
+        },
+        audioClips: {
+          orderBy: {
+            orden: 'asc',
+          },
+        },
       },
     });
 
@@ -43,6 +53,7 @@ export async function GET(
     );
   }
 }
+
 
 export async function DELETE(request: NextRequest, { params }: { params: { categoryId: string } }) {
   const { categoryId } = params;

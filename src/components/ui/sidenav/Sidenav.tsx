@@ -6,6 +6,7 @@ import { useSearch } from "@/context/SearchContext";
 import { useCategories } from "@/context/CategoriesContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Link from "next/link";
 
 interface Category {
   id: number;
@@ -13,13 +14,12 @@ interface Category {
 }
 
 export const Sidenav: React.FC = () => {
-  const { categories } = useCategories(); // Obtener las categorías del contexto
-  const { searchTerm, setSearchTerm } = useSearch(); // Obtener `searchTerm` y `setSearchTerm` del contexto
+  const { categories } = useCategories();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const router = useRouter();
 
-  // Filtrar las categorías de acuerdo al término de búsqueda
   const filteredCategories = categories.filter((category) =>
     category.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -91,6 +91,16 @@ export const Sidenav: React.FC = () => {
         >
           Callbk
         </button>
+      </div>
+      <div className="flex w-full mx-auto justify-center my-10">
+        <Link href={'/addsectionreference'}>
+        <button
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-600"
+        >
+          Gestionar Secciones
+        </button>
+        </Link>
+
       </div>
       {showDatePicker && (
         <div className="mt-4">

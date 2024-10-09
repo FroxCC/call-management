@@ -1,7 +1,53 @@
+'use client'
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs"; // Importar UserButton para manejar el logout y el perfil del usuario
+import { UserButton } from "@clerk/nextjs";
+import { PencilIcon, PlusIcon } from "lucide-react";
+import { useCall } from "@/context/CallContext"; // Asegúrate de ajustar la ruta de importación
+import { useEffect, useState } from "react";
 
 export const Header = () => {
+  const { startCall, endCall } = useCall();
+  const [despedidaUrl, setDespedidaUrl] = useState<string | null>(null);
+
+  // Función para obtener la URL del audio de despedida
+  const fetchDespedidaAudio = async () => {
+    try {
+      const response = await fetch('/api/despedida');
+      const data = await response.json();
+  
+      if (!response.ok || !data.audioUrl) {
+        throw new Error('Error al obtener el audio de despedida');
+      }
+  
+      setDespedidaUrl(data.audioUrl); // Guardar la URL del audio de despedida
+    } catch (error) {
+      console.error('Error al obtener el audio de despedida:', error);
+    }
+  };
+
+  // Obtener la URL del audio de despedida al cargar el componente
+  useEffect(() => {
+    fetchDespedidaAudio();
+  }, []);
+
+  // Manejar el evento de despedida y reproducir el audio
+  const handleDespedida = async () => {
+    endCall();
+  
+    if (!despedidaUrl) {
+      await fetchDespedidaAudio(); // Intentar obtener la URL antes de reproducir el audio
+    }
+  
+    // Esperar hasta que despedidaUrl no sea null
+    if (despedidaUrl) {
+      const audio = new Audio(despedidaUrl);
+      audio.play();
+    } else {
+      console.error("No se encontró la URL del audio de despedida.");
+    }
+  };
+  
+
   return (
     <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
       <div className="flex items-center">
@@ -12,28 +58,44 @@ export const Header = () => {
         <div className="mr-4 flex items-end">
           <span className="font-semibold mr-2 pr-2">Info del Cliente:</span>
           John Doe
-          <div className="relative pr-3 ml-2">
-          25
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full w-2 h-2 bg-blue-500 rounded-full"></div>
+          <div className="relative pr-3 ml-2 font-bold text-2xl">
+            25
           </div>
           234567890
         </div>
-        <Link href="/reports">
-          <button className="px-4 py-2 bg-green-500 text-white rounded-full mr-4">
-            Ver Reportes
-          </button>
-        </Link>
       </div>
-      
+
       <div className="flex items-center">
-        <Link href="/addaudio">
-          <button className="px-4 py-2 bg-green-500 text-white rounded-full mr-4">
-            Agregar Nuevo Audio Clip
+        <button
+          onClick={startCall}
+          className="px-4 py-2 text-sm bg-green-500 text-white rounded-full mr-4"
+        >
+          Iniciar llamada
+        </button>
+
+        <button
+          onClick={handleDespedida}
+          className="px-4 py-2 text-sm bg-red-500 text-white rounded-full mr-4"
+        >
+          Despedida
+        </button>
+
+        <Link href={'/editdespedida'}>
+          <button
+            className="px-4 py-2 text-sm bg-red-500 text-white rounded-full mr-4"
+            title="Editar Audio Despedida"
+          >
+            <PencilIcon/>
           </button>
         </Link>
-        
-        {/* Botón para cerrar sesión o acceder a la cuenta */}
-        <UserButton/>
+
+        <Link href="/addaudio">
+          <button className="px-4 py-2 bg-green-500 text-white rounded-full mr-4" title="Agregar AudioClip">
+            <PlusIcon />
+          </button>
+        </Link>
+
+        <UserButton />
       </div>
     </header>
   );
