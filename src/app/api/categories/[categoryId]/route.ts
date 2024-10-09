@@ -24,6 +24,11 @@ export async function GET(
       },
       include: {
         referenceClips: true, 
+        seccionesReferencia: {
+          include: {
+            audios: true,  // Incluye los audios dentro de cada sección de referencia
+          },
+        },
         audioClips: {
           orderBy: {
             orden: 'asc',

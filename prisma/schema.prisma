@@ -28,6 +28,8 @@ model Categoria {
   usuario    Usuario     @relation(fields: [usuarioId], references: [id])
   audioClips AudioClip[]
   referenceClips AudioClip[] @relation("ReferenceClips")
+
+  seccionesReferencia SeccionReferencia[]
 }
 
 model AudioClip {
@@ -44,4 +46,16 @@ model AudioClip {
 
   referenceCategoria Categoria? @relation("ReferenceClips", fields: [referenceCategoriaId], references: [id])
   referenceCategoriaId Int?
+
+  seccionReferencia SeccionReferencia? @relation("SeccionAudioClips", fields: [seccionReferenciaId], references: [id])
+  seccionReferenciaId Int?
 }
+
+model SeccionReferencia {
+  id         Int          @id @default(autoincrement())
+  nombre     String
+  audios     AudioClip[]  @relation("SeccionAudioClips") // Relación con los clips de audio de referencia
+  categoria  Categoria     @relation(fields: [categoriaId], references: [id])
+  categoriaId Int
+}
+

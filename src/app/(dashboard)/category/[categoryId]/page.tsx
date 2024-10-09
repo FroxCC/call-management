@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ReferenceModal } from "@/components";
+import { ReferenceModal} from '@/components';
 import { Separator } from "@/components/ui/separator";
 
 interface AudioClip {
@@ -27,6 +27,11 @@ interface Category {
   id: number;
   nombre: string;
   audioClips: AudioClip[];
+  seccionesReferencia: {
+    id: number;
+    nombre: string;
+    audios: AudioClip[];
+  }[];
 }
 
 export default function CategoryPage() {
@@ -60,6 +65,22 @@ export default function CategoryPage() {
       }
     };
 
+    const fetchCategoryWithSectionReferences = async () => {
+      try {
+        const response = await fetch(`/api/categories/${categoryId}`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los datos de la categoría");
+        }
+        const data = await response.json();
+        setCategory(data); // Asegúrate de que el estado `category` incluya `seccionesReferencia`
+      } catch (error) {
+        console.error("Error al obtener la categoría:", error);
+        setError("Error al cargar los datos de la categoría");
+      } finally {
+        setLoading(false);
+      }
+    };
+
 
     const fetchCategoryWithReferences = async () => {
       try {
@@ -78,6 +99,7 @@ export default function CategoryPage() {
       }
     };
 
+    fetchCategoryWithSectionReferences();
     fetchCategoryWithReferences();
     fetchCategory();
     
@@ -328,12 +350,10 @@ export default function CategoryPage() {
         <p>No hay clips de audio asignados a esta categoría.</p>
       )}
   
-      {/* Separador y clips de referencia */}
-{/* Separador y clips de referencia */}
 {referenceClips.length > 0 && (
   <>
     <Separator className="my-8" />
-    <h2 className="text-xl font-semibold mb-2">Clips de Referencia:</h2>
+    <h2 className="text-xl font-semibold mb-2">Clips de Acesso rapido:</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {referenceClips.map((clip) => (
         <SortableClip
@@ -357,9 +377,35 @@ export default function CategoryPage() {
           onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 bg-green-500 text-white rounded-full"
         >
-          Agregar referencia
+          Agregar acceso rapido
         </button>
       </div>
+
+
+      {category.seccionesReferencia && category.seccionesReferencia.length > 0 && (
+  <>
+    <Separator className="my-8" />
+    <h2 className="text-xl font-semibold mb-2">Secciones:</h2>
+
+    {category.seccionesReferencia.map((seccion) => (
+      <div key={seccion.id} className="mb-8">
+        <h3 className="text-lg font-semibold mb-2">{seccion.nombre}</h3> {/* Nombre de la sección */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {seccion.audios.map((clip) => (
+            <div key={clip.id} className="bg-gray-200 p-4 rounded shadow">
+              <h4 className="font-bold">{clip.nombre}</h4>
+              <audio controls className="w-full mt-2">
+                <source src={clip.audioUrl} type="audio/mpeg" />
+                Tu navegador no soporta el elemento de audio.
+              </audio>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </>
+)}
+
   
       {isModalOpen && (
         <ReferenceModal

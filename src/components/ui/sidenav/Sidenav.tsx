@@ -6,6 +6,7 @@ import { useSearch } from "@/context/SearchContext";
 import { useCategories } from "@/context/CategoriesContext";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Link from "next/link";
 
 interface Category {
   id: number;
@@ -90,6 +91,16 @@ export const Sidenav: React.FC = () => {
         >
           Callbk
         </button>
+      </div>
+      <div className="flex w-full mx-auto justify-center my-10">
+        <Link href={'/addsectionreference'}>
+        <button
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-600"
+        >
+          Gestionar Secciones
+        </button>
+        </Link>
+
       </div>
       {showDatePicker && (
         <div className="mt-4">
