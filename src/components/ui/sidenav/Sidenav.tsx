@@ -13,13 +13,12 @@ interface Category {
 }
 
 export const Sidenav: React.FC = () => {
-  const { categories } = useCategories(); // Obtener las categorías del contexto
-  const { searchTerm, setSearchTerm } = useSearch(); // Obtener `searchTerm` y `setSearchTerm` del contexto
+  const { categories } = useCategories();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const router = useRouter();
 
-  // Filtrar las categorías de acuerdo al término de búsqueda
   const filteredCategories = categories.filter((category) =>
     category.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );

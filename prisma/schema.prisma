@@ -13,10 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Categoria {
-  id       Int         @id @default(autoincrement())
-  nombre   String
+model Usuario {
+  id         String      @id // Clerk userId se usará aquí, no se generará automáticamente
+  categorias Categoria[]
   audioClips AudioClip[]
+
+  despedidaAudioUrl String?
+}
+
+model Categoria {
+  id         Int         @id @default(autoincrement())
+  nombre     String
+  usuarioId  String
+  usuario    Usuario     @relation(fields: [usuarioId], references: [id])
+  audioClips AudioClip[]
+  referenceClips AudioClip[] @relation("ReferenceClips")
 }
 
 model AudioClip {
@@ -27,4 +38,10 @@ model AudioClip {
   categoriaId   Int
   audioUrl      String
   categoria     Categoria @relation(fields: [categoriaId], references: [id])
+  usuarioId     String
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id])
+  orden         Int
+
+  referenceCategoria Categoria? @relation("ReferenceClips", fields: [referenceCategoriaId], references: [id])
+  referenceCategoriaId Int?
 }

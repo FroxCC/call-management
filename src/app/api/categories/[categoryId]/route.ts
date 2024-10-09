@@ -23,7 +23,12 @@ export async function GET(
         id: categoryIdNumber,
       },
       include: {
-        audioClips: true,
+        referenceClips: true, 
+        audioClips: {
+          orderBy: {
+            orden: 'asc',
+          },
+        },
       },
     });
 
@@ -43,6 +48,7 @@ export async function GET(
     );
   }
 }
+
 
 export async function DELETE(request: NextRequest, { params }: { params: { categoryId: string } }) {
   const { categoryId } = params;
