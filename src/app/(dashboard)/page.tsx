@@ -17,7 +17,37 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+<<<<<<< Updated upstream
     const fetchAudioClips = async () => {
+=======
+    const checkOrCreateUser = async () => {
+      if (!isLoaded || !userId) return;
+
+      try {
+        const response = await fetch('/api/usuarios', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al verificar o crear el usuario');
+        }
+
+        const data = await response.json();
+        console.log('Resultado:', data);
+      } catch (error) {
+        console.error('Error al verificar o crear el usuario:', error);
+      }
+    };
+
+    checkOrCreateUser();
+
+
+    const fetchIntroClips = async () => {
+>>>>>>> Stashed changes
       try {
         const response = await fetch('/api/audioClips');
         if (!response.ok) {
