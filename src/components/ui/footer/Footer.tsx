@@ -12,8 +12,9 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-800 text-white p-4 flex justify-between items-center">
-      <span>Duración de la llamada actual: {formatTime(time)}</span>
-    </footer>
+<footer className="flex w-full mx-auto bg-gray-800 text-white p-4 justify-center items-center">
+  <span>Duración de la llamada actual: {formatTime(time)}</span>
+</footer>
+
   );
 };

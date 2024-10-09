@@ -46,9 +46,8 @@ model AudioClip {
 
   referenceCategoria Categoria? @relation("ReferenceClips", fields: [referenceCategoriaId], references: [id])
   referenceCategoriaId Int?
-
-  seccionReferencia SeccionReferencia? @relation("SeccionAudioClips", fields: [seccionReferenciaId], references: [id])
-  seccionReferenciaId Int?
+  
+  seccionesReferencia SeccionReferencia[] @relation("SeccionAudioClips")
 }
 
 model SeccionReferencia {
