@@ -19,6 +19,7 @@ model Usuario {
   audioClips AudioClip[]
 
   despedidaAudioUrl String?
+  inicioAudioUrl    String?
 }
 
 model Categoria {

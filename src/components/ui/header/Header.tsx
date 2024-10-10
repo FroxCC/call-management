@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 export const Header = () => {
   const { startCall, endCall } = useCall();
   const [despedidaUrl, setDespedidaUrl] = useState<string | null>(null);
+  const [inicioUrl, setInicioUrl] = useState<string | null>(null);
 
   // Función para obtener la URL del audio de despedida
   const fetchDespedidaAudio = async () => {
@@ -24,10 +25,25 @@ export const Header = () => {
       console.error('Error al obtener el audio de despedida:', error);
     }
   };
+  const fetchInicioAudio = async () => {
+    try {
+      const response = await fetch('/api/iniciollamada');
+      const data = await response.json();
+  
+      if (!response.ok || !data.audioUrl) {
+        throw new Error('Error al obtener el audio de despedida');
+      }
+  
+      setInicioUrl(data.audioUrl); // Guardar la URL del audio de despedida
+    } catch (error) {
+      console.error('Error al obtener el audio de despedida:', error);
+    }
+  };
 
   // Obtener la URL del audio de despedida al cargar el componente
   useEffect(() => {
     fetchDespedidaAudio();
+    fetchInicioAudio();
   }, []);
 
   // Manejar el evento de despedida y reproducir el audio
@@ -41,6 +57,21 @@ export const Header = () => {
     // Esperar hasta que despedidaUrl no sea null
     if (despedidaUrl) {
       const audio = new Audio(despedidaUrl);
+      audio.play();
+    } else {
+      console.error("No se encontró la URL del audio de despedida.");
+    }
+  };
+  const handleInicio = async () => {
+    startCall();
+  
+    if (!inicioUrl) {
+      await fetchDespedidaAudio(); // Intentar obtener la URL antes de reproducir el audio
+    }
+  
+    // Esperar hasta que despedidaUrl no sea null
+    if (inicioUrl) {
+      const audio = new Audio(inicioUrl);
       audio.play();
     } else {
       console.error("No se encontró la URL del audio de despedida.");
@@ -67,7 +98,7 @@ export const Header = () => {
 
       <div className="flex items-center">
         <button
-          onClick={startCall}
+          onClick={handleInicio}
           className="px-4 py-2 text-sm bg-green-500 text-white rounded-full mr-4"
         >
           Iniciar llamada
@@ -82,7 +113,7 @@ export const Header = () => {
 
         <Link href={'/editdespedida'}>
           <button
-            className="px-4 py-2 text-sm bg-red-500 text-white rounded-full mr-4"
+            className="px-4 py-2 text-sm bg-gray-400 text-white rounded-full mr-4"
             title="Editar Audio Despedida"
           >
             <PencilIcon/>

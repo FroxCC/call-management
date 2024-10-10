@@ -75,7 +75,7 @@ export default function Home() {
     return (
       <div className="p-4">
         <h1 className="text-7xl font-bold mb-4">Bienvenido</h1>
-        <p className='text-3xl'>Parece que no tienes una categoría Intro. Por favor, agrega una para empezar a usar el sistema.</p>
+        <p className='text-3xl'>Parece que no tienes una categoría <strong>NORMAL</strong>. Por favor, agrega una para poder verla en el inicio.</p>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Clips de Audio - Intro</h1>
+      <h1 className="text-2xl font-bold mb-4">Call Management - Normal</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredClips.map((clip) => (
           <div key={clip.id} className="bg-gray-200 p-4 rounded shadow">

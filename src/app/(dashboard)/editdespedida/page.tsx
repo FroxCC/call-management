@@ -1,10 +1,13 @@
-import { DespedidaForm } from '@/components'
-import React from 'react'
+import { DespedidaForm, InicioForm } from "@/components";
+import { Separator } from "@/components/ui/separator";
+import React from "react";
 
 export default function EditDespedidaForm() {
   return (
     <div>
-        <DespedidaForm/>
+      <InicioForm />
+      <Separator className="bg-black my-8" />
+      <DespedidaForm />
     </div>
-  )
+  );
 }

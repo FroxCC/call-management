@@ -5,4 +5,5 @@ export * from "./ui/newaudioform/NewAudioForm";
 export * from "./ui/audioui/CategorySelected";
 export * from "./ui/modal/ReferenceModal";
 export * from "./ui/despedidaform/DespedidaForm";
+export * from "./ui/despedidaform/InicioForm";
 export * from "./ui/sectionReferences/sectionReferences";

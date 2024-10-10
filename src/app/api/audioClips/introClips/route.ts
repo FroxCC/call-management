@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Obtener la categoría 'Intro' específica del usuario
     const introCategory = await prisma.categoria.findFirst({
       where: {
-        nombre: 'Intro',
+        nombre: 'NORMAL',
         usuarioId: userId,
       },
       include: {
