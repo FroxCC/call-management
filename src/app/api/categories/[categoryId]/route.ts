@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getAuth } from "@clerk/nextjs/server"; // Clerk o cualquier autenticación que estés usando
 
 const prisma = new PrismaClient();
 
@@ -7,6 +8,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { categoryId: string } }
 ) {
+  const { userId } = getAuth(request); // Obtener el ID del usuario autenticado
   const { categoryId } = params;
 
   try {
@@ -18,12 +20,21 @@ export async function GET(
       );
     }
 
-    const category = await prisma.categoria.findUnique({
+    // Verificar si la categoría pertenece al usuario
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Usuario no autenticado" },
+        { status: 401 }
+      );
+    }
+
+    const category = await prisma.categoria.findFirst({
       where: {
         id: categoryIdNumber,
+        usuarioId: userId, // Verificar que la categoría pertenece al usuario autenticado
       },
       include: {
-        referenceClips: true, 
+        referenceClips: true,
         seccionesReferencia: {
           include: {
             audios: true,  // Incluye los audios dentro de cada sección de referencia
@@ -39,7 +50,7 @@ export async function GET(
 
     if (!category) {
       return NextResponse.json(
-        { error: "Categoría no encontrada" },
+        { error: "Categoría no encontrada o no tienes acceso" },
         { status: 404 }
       );
     }
@@ -55,13 +66,39 @@ export async function GET(
 }
 
 
-export async function DELETE(request: NextRequest, { params }: { params: { categoryId: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { categoryId: string } }
+) {
+  const { userId } = getAuth(request); // Obtener el ID del usuario autenticado
   const { categoryId } = params;
 
   try {
     const categoryIdNumber = parseInt(categoryId);
     if (isNaN(categoryIdNumber)) {
       return NextResponse.json({ error: 'ID de categoría inválido' }, { status: 400 });
+    }
+
+    // Verificar que la categoría pertenece al usuario antes de eliminarla
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Usuario no autenticado" },
+        { status: 401 }
+      );
+    }
+
+    const category = await prisma.categoria.findFirst({
+      where: {
+        id: categoryIdNumber,
+        usuarioId: userId, // Verificar que la categoría pertenece al usuario autenticado
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Categoría no encontrada o no tienes acceso" },
+        { status: 404 }
+      );
     }
 
     await prisma.categoria.delete({
